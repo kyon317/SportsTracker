@@ -1,0 +1,90 @@
+<resources>
+    <string name="app_name">MyRuns3</string>
+    <string name="tab_text_1">Tab 1</string>
+    <string name="tab_text_2">Tab 2</string>
+    <string name="title_activity_profile">Profile_Activity</string>
+
+    <string name="profilepics">ProfilePics</string>
+    <string name="cancel_btn_txt">CANCEL</string>
+    <string name="save_btn_txt">SAVE</string>
+    <string name="change_btn_txt">CHANGE</string>
+    <string name="profile_photo_txt">Profile Photo:</string>
+    <string name="email_txt">Email</string>
+    <string name="major_txt">Major</string>
+    <string name="gender_txt">Gender</string>
+    <string name="class_txt">Class</string>
+    <string name="female_txt">Female</string>
+    <string name="male_txt">Male</string>
+    <string name="phone_txt">Phone</string>
+    <string name="name_txt">Name</string>
+    <string name="phone_hint">Your Phone Number</string>
+    <string name="name_hint">Your Name</string>
+    <string name="major_hint">Your Major</string>
+    <string name="email_hint">Your Email</string>
+    <string name="class_hint">eg. 2012</string>
+    <string name="title_activity_settings">SettingsActivity</string>
+
+
+    <!-- Strings used for fragments for navigation -->
+    <string name="start_fragment_label">Start</string>
+    <string name="history_fragment_label">History</string>
+    <string name="setting_fragment_label">Settings</string>
+    <string name="activity_type">Activity Type</string>
+    <string name="input_type">Input Type</string>
+    <string name="start_btn_txt">START</string>
+
+
+    <string-array name="input_type">
+        <item>Manual Entry</item>
+        <item>GPS</item>
+        <item>Automatic</item>
+    </string-array>
+
+    <string-array name="activity_type">
+        <item>Running</item>
+        <item>Walking</item>
+        <item>Standing</item>
+        <item>Cycling</item>
+        <item>Hiking</item>
+        <item>Downhill Skiing</item>
+        <item>Cross-Country Skiing</item>
+        <item>Snowboarding</item>
+        <item>Skating</item>
+        <item>Swimming</item>
+        <item>Mountain Biking</item>
+        <item>Wheelchair</item>
+        <item>Elliptical</item>
+        <item>Other</item>
+    </string-array>
+
+    <string-array name="input_activity_type">
+        <item>Date</item>
+        <item>Time</item>
+        <item>Duration</item>
+        <item>Distance</item>
+        <item>Calories</item>
+        <item>Heart Rate</item>
+        <item>Comment</item>
+    </string-array>
+
+    <string name="webpage">https://www.sfu.ca/computing.html</string>
+    <string name="map_title_txt">MAP</string>
+    <string name="date_and_time">Date and Time</string>
+    <string name="duration">Duration</string>
+    <string name="distance">Distance</string>
+    <string name="calories">Calories</string>
+    <array name="unit_preferences">
+        <item>Metric (Kilometers)</item>
+        <item>Imperial (Miles)</item>
+    </array>
+    <string name="title_activity_entry_detail">EntryDetailActivity</string>
+    <!-- Strings used for fragments for navigation -->
+    <string name="first_fragment_label">First Fragment</string>
+    <string name="second_fragment_label">Second Fragment</string>
+    <string name="next">Next</string>
+    <string name="previous">Previous</string>
+
+    <string name="hello_first_fragment">Hello first fragment</string>
+    <string name="hello_second_fragment">Hello second fragment. Arg: %1$s</string>
+
+</resources>

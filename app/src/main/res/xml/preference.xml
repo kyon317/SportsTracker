@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <PreferenceCategory
+        android:textColor="#00838F"
+        android:textSize="20sp"
+        android:title="Account Preferences">
+
+        <Preference
+            android:title="Name, Email, Class, etc"
+            android:summary="User Profile">
+            <intent
+                android:action="ProfileActivity"
+                android:targetPackage="com.example.jiaqing_hu"
+                android:targetClass="com.example.jiaqing_hu.Profile_Activity" />
+        </Preference>
+
+        <CheckBoxPreference
+            android:defaultValue="false"
+            android:key="check_box_preference_1"
+            android:title="Privacy Setting"
+            android:summary="Posting your records anonymously"
+            />
+    </PreferenceCategory>
+
+    <PreferenceCategory android:title="Additional Settings">
+        <ListPreference
+            android:summary="Select the units"
+            android:title="Unit Preference"
+            android:entries="@array/unit_preferences"
+            android:defaultValue="0"
+            android:entryValues="@array/unit_preferences"
+            android:key="unitt_preferences"
+
+            >
+
+        </ListPreference>
+        <EditTextPreference
+            android:key="comment"
+            android:summary="Please enter your comments"
+            android:title="Comment">
+
+        </EditTextPreference>
+    </PreferenceCategory>
+    <PreferenceCategory android:title="Misc.">
+        <Preference
+            android:title="Webpage"
+            android:summary="@string/webpage">
+            <intent
+                android:action="android.intent.action.VIEW"
+                android:data="@string/webpage"/>
+        </Preference>
+    </PreferenceCategory>
+</PreferenceScreen>
