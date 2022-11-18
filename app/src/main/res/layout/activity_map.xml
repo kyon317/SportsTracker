@@ -14,37 +14,31 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
         <TextView
-            android:textAppearance="?android:attr/textAppearanceMedium"
             android:textColor="#000"
             android:id="@+id/ActivityType_tv"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"/>
         <TextView
-            android:textAppearance="?android:attr/textAppearanceMedium"
             android:textColor="#000"
             android:id="@+id/AvgSpeed_tv"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"/>
         <TextView
-            android:textAppearance="?android:attr/textAppearanceMedium"
             android:textColor="#000"
-            android:id="@+id/CurSpeed_tv"
+            android:id="@+id/CurrSpeed_tv"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"/>
         <TextView
-            android:textAppearance="?android:attr/textAppearanceMedium"
             android:textColor="#000"
             android:id="@+id/Climb_tv"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"/>
         <TextView
-            android:textAppearance="?android:attr/textAppearanceMedium"
             android:textColor="#000"
             android:id="@+id/Calorie_tv"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"/>
         <TextView
-            android:textAppearance="?android:attr/textAppearanceMedium"
             android:textColor="#000"
             android:id="@+id/Distance_tv"
             android:layout_width="match_parent"

@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">MyRuns3</string>
+    <string name="app_name">MyRuns4</string>
     <string name="tab_text_1">Tab 1</string>
     <string name="tab_text_2">Tab 2</string>
     <string name="title_activity_profile">Profile_Activity</string>
@@ -86,5 +86,6 @@
 
     <string name="hello_first_fragment">Hello first fragment</string>
     <string name="hello_second_fragment">Hello second fragment. Arg: %1$s</string>
+    <string name="unit_preferences">Unit Preferences</string>
 
 </resources>

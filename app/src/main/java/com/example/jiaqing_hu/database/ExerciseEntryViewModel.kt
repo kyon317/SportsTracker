@@ -4,7 +4,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.asLiveData
-import java.lang.IllegalArgumentException
+
 
 /* ExerciseEntryViewModel - A view model that operates on ExerciseEntryRepository*/
 class ExerciseEntryViewModel(private val repository: ExerciseEntryRepository) : ViewModel() {
@@ -29,6 +29,15 @@ class ExerciseEntryViewModel(private val repository: ExerciseEntryRepository) : 
             if (commentList != null && commentList.size > 0)
                 repository.deleteAll()
         }
+
+        fun getById(index:Int):ExerciseEntry? {
+            val commentList = allCommentsLiveData.value
+
+            if (commentList != null && commentList.isNotEmpty())
+                return allCommentsLiveData.value?.get(index)
+            return null
+        }
+
     }
 
 }

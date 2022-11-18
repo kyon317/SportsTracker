@@ -47,7 +47,7 @@ class HistoryFragment : Fragment() {
         // pass the selected item to showEntryActivity()
         listView.setOnItemClickListener { parent, view, position, id ->
             val element:ExerciseEntry = arrayAdapter.getItem(position) as ExerciseEntry
-            showEntryActivity(view,element)
+            showEntryActivity(view,element,position)
         }
 
         return view
@@ -63,15 +63,28 @@ class HistoryFragment : Fragment() {
     }
 
     // define launch behavior and pass data to Entry Activity
-    private fun showEntryActivity(view : View, element:ExerciseEntry){
-        val intent = Intent(view.context,EntryActivity::class.java)
-        val activityType = ACTIVITY_TYPES[element.activityType]
+    private fun showEntryActivity(view : View, element:ExerciseEntry,position:Int){
+        var activityType = "Unknown"
+        if (element.activityType != -1)
+            activityType = ACTIVITY_TYPES[element.activityType]
         val inputType = INPUT_TYPES[element.inputType]
         val datetime = Util.dateParser(element.dateTime)
         val duration = element.duration.toString()
         val distance = element.distance.toString()
         val calories = element.calorie.toString()
         val heartRate = element.heartRate.toString()
+        var intent = Intent()
+        when(element.inputType){
+            0->{
+                intent = Intent(view.context,EntryActivity::class.java)
+            }
+            1,2->{
+                intent = Intent(view.context,MapActivity::class.java)
+                intent.putExtra("history",true)
+                intent.putExtra("locationList",element.locationList)
+                intent.putExtra("index",position)
+            }
+        }
         intent.putExtra("id",element.id)
         intent.putExtra("inputType",inputType)
         intent.putExtra("activityType",activityType)

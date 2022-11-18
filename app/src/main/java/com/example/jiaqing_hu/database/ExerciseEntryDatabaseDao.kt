@@ -3,7 +3,6 @@ package com.example.jiaqing_hu.database
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
-import androidx.room.TypeConverters
 import kotlinx.coroutines.flow.Flow
 
 /* ExerciseEntryDatabaseDao - DAO object for ExerciseEntryDatabase*/
@@ -26,4 +25,5 @@ interface ExerciseEntryDatabaseDao {
 
     @Query("DELETE FROM exercise_table WHERE id = :key") //":" indicates that it is a Bind variable
     suspend fun deleteComment(key: Long)
+
 }

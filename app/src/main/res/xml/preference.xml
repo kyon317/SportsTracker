@@ -30,7 +30,7 @@
             android:entries="@array/unit_preferences"
             android:defaultValue="0"
             android:entryValues="@array/unit_preferences"
-            android:key="unitt_preferences"
+            android:key="@string/unit_preferences"
 
             >
 

@@ -1,7 +1,6 @@
 package com.example.jiaqing_hu
 
 import android.os.Bundle
-import android.preference.PreferenceFragment
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.viewpager2.widget.ViewPager2

@@ -2,11 +2,11 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "7f42eff58d633953ad639e189ddbd944",
+    "identityHash": "b0ec6f13f7f920f6870c25a9af7dc6f1",
     "entities": [
       {
         "tableName": "exercise_table",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `inputType` INTEGER NOT NULL, `activityType` INTEGER NOT NULL, `dateTime` INTEGER NOT NULL, `duration` REAL NOT NULL, `distance` REAL NOT NULL, `avgPace` REAL NOT NULL, `avgSpeed` REAL NOT NULL, `calorie` REAL NOT NULL, `climb` REAL NOT NULL, `heartRate` REAL NOT NULL, `comments` TEXT NOT NULL)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `inputType` INTEGER NOT NULL, `activityType` INTEGER NOT NULL, `dateTime` INTEGER NOT NULL, `duration` REAL NOT NULL, `distance` REAL NOT NULL, `avgPace` REAL NOT NULL, `avgSpeed` REAL NOT NULL, `calorie` REAL NOT NULL, `climb` REAL NOT NULL, `heartRate` REAL NOT NULL, `comments` TEXT NOT NULL, `locationList` BLOB NOT NULL)",
         "fields": [
           {
             "fieldPath": "id",
@@ -79,6 +79,12 @@
             "columnName": "comments",
             "affinity": "TEXT",
             "notNull": true
+          },
+          {
+            "fieldPath": "locationList",
+            "columnName": "locationList",
+            "affinity": "BLOB",
+            "notNull": true
           }
         ],
         "primaryKey": {
@@ -94,7 +100,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '7f42eff58d633953ad639e189ddbd944')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'b0ec6f13f7f920f6870c25a9af7dc6f1')"
     ]
   }
 }

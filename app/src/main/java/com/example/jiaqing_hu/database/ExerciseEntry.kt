@@ -2,7 +2,11 @@ package com.example.jiaqing_hu.database
 
 
 import androidx.room.*
+import com.google.android.gms.maps.model.LatLng
+import java.nio.ByteBuffer
+import java.nio.IntBuffer
 import java.util.*
+
 /* ExerciseEntry - A data class for exercise entry
 id: Long //Primary Key
 inputType: Int  // Manual, GPS or automatic
@@ -55,7 +59,12 @@ data class ExerciseEntry(
     var heartRate : Double = 0.0,
 
     @ColumnInfo(name = "comments")
-    var comment : String = ""
+    var comment : String = "",
+
+    @ColumnInfo(name = "locationList")
+    var locationList : ArrayList<LatLng> = ArrayList()
+
+
 )
 
 
@@ -77,4 +86,33 @@ class Converters {
         }
         return 0L
     }
+
+    @TypeConverter
+    fun locationToByteArray(locationList:ArrayList<LatLng>) : ByteArray? {
+        val intArray = IntArray(locationList.size * 2)
+        for (i in 0 until locationList.size) {
+            intArray[i * 2] = (locationList[i].latitude * 1000000.0).toInt()
+            intArray[i * 2 + 1] = (locationList[i].longitude * 1000000.0).toInt()
+        }
+        val byteBuffer : ByteBuffer = ByteBuffer.allocate(intArray.size * 32)
+        val intBuffer : IntBuffer = byteBuffer.asIntBuffer()
+        intBuffer.put(intArray)
+        return byteBuffer.array()
+    }
+
+    @TypeConverter
+    fun byteArrayToLocation(bytePointArray : ByteArray): ArrayList<LatLng>{
+        val locationList = ArrayList<LatLng>()
+        val byteBuffer : ByteBuffer = ByteBuffer.wrap(bytePointArray)
+        val intBuffer : IntBuffer = byteBuffer.asIntBuffer()
+        val intArray = IntArray(bytePointArray.size / 32)
+        intBuffer.get(intArray)
+        val locationNum = intArray.size / 2
+        for (i in 0 until locationNum) {
+            val latLng = LatLng(intArray[i * 2] / 1000000.0, intArray[i * 2 + 1] / 1000000.0)
+            locationList.add(latLng)
+        }
+        return locationList
+    }
+
 }

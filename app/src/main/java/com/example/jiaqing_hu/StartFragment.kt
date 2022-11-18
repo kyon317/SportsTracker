@@ -1,10 +1,8 @@
 package com.example.jiaqing_hu
 
 
-import android.content.ContentValues.TAG
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -57,18 +55,18 @@ class StartFragment : Fragment() {
         when(tmp){
             "Manual Entry"->{
                 intent = Intent(view.context,ManualActivity::class.java)
-                val tt = type_spinner.selectedItemId
-                Log.e(TAG, "onStartBtnClicked: $tt")
                 intent.putExtra("inputted",0)
                 intent.putExtra("activity",type_spinner.selectedItemId.toInt())
             }
             "GPS"->{
                 intent = Intent(view.context,MapActivity::class.java)
                 intent.putExtra("inputted",1)
+                intent.putExtra("activity",type_spinner.selectedItemId.toInt())
             }
             "Automatic"->{
                 intent = Intent(view.context,MapActivity::class.java)
                 intent.putExtra("inputted",2)
+                intent.putExtra("activity",-1)
             }
         }
         startActivity(intent)

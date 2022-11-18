@@ -4,6 +4,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
+
 /* ExerciseEntryRepository - Repository for view model to access and store database*/
 class ExerciseEntryRepository(private val exerciseEntryDatabaseDao : ExerciseEntryDatabaseDao) {
     val allComments: Flow<List<ExerciseEntry>> = exerciseEntryDatabaseDao.getAllEntries()
@@ -25,4 +26,5 @@ class ExerciseEntryRepository(private val exerciseEntryDatabaseDao : ExerciseEnt
             exerciseEntryDatabaseDao.deleteAll()
         }
     }
+
 }
