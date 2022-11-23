@@ -296,6 +296,7 @@ class TrackingService:
 
     }
 
+    // collect data in the background, detect behaviour changing
     inner class OnSensorChangedTask : AsyncTask<Void, Void, Void>() {
         override fun doInBackground(vararg arg0: Void?): Void? {
             val inst: Instance = DenseInstance(mFeatLen)
