@@ -1,6 +1,5 @@
 package com.example.jiaqing_hu
 
-//import com.google.android.gms.location.LocationListener
 import android.annotation.SuppressLint
 import android.app.NotificationChannel
 import android.app.NotificationManager
@@ -8,6 +7,10 @@ import android.app.PendingIntent
 import android.app.Service
 import android.content.ContentValues.TAG
 import android.content.Intent
+import android.hardware.Sensor
+import android.hardware.SensorEvent
+import android.hardware.SensorEventListener
+import android.hardware.SensorManager
 import android.location.Location
 import android.location.LocationManager
 import android.os.*
@@ -20,10 +23,22 @@ import com.google.android.gms.location.LocationListener
 import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.model.LatLng
+import weka.core.Attribute
+import weka.core.DenseInstance
+import weka.core.Instance
+import weka.core.Instances
+import java.io.File
+import java.text.DecimalFormat
 import java.util.*
+import java.util.concurrent.ArrayBlockingQueue
 
 /*Tracking services - provide current location info, parse location to mapviewmodel, make broadcast when location changes*/
-class TrackingService:Service(), GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener,LocationListener {
+class TrackingService:
+    Service(),
+    GoogleApiClient.ConnectionCallbacks,
+    GoogleApiClient.OnConnectionFailedListener,
+    LocationListener,
+    SensorEventListener {
     private lateinit var notificationManager: NotificationManager
     private val NOTIFICATION_ID = 777
     private val CHANNEL_ID = "notification channel"
@@ -47,6 +62,19 @@ class TrackingService:Service(), GoogleApiClient.ConnectionCallbacks, GoogleApiC
     private lateinit var mLocationRequest:LocationRequest
     private val mHandler = Handler()
 
+    private val mFeatLen = ACCELEROMETER_BLOCK_CAPACITY + 2
+    private lateinit var mFeatureFile: File
+    private lateinit var mSensorManager: SensorManager
+    private lateinit var mAccelerometer: Sensor
+    private var mServiceTaskType = 0
+    private lateinit var mLabel: String
+    private lateinit var mDataset: Instances
+    private lateinit var mClassAttribute: Attribute
+    private lateinit var mAsyncTask: OnSensorChangedTask
+    private lateinit var mAccBuffer: ArrayBlockingQueue<Double>
+    private var isAuto = false
+
+
     override fun onCreate() {
         super.onCreate()
         exerciseEntry = ExerciseEntry()
@@ -56,13 +84,21 @@ class TrackingService:Service(), GoogleApiClient.ConnectionCallbacks, GoogleApiC
         timer.scheduleAtFixedRate(myTask, 0, 1000L)
         showNotification()
         myBinder = MyBinder()
+        mAccBuffer = ArrayBlockingQueue<Double>(ACCELEROMETER_BUFFER_CAPACITY)
     }
 
     // start google api client and request location updates
     // reference: https://stackoverflow.com/questions/28535703/best-way-to-get-user-gps-location-in-background-in-android
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        if (intent!=null)
+        mSensorManager = getSystemService(SENSOR_SERVICE) as SensorManager
+        mAccelerometer = mSensorManager.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION)
+        mSensorManager.registerListener(this, mAccelerometer, SensorManager.SENSOR_DELAY_FASTEST)
+
+        if (intent!=null){
+            isAuto = intent.getBooleanExtra("isAuto",false)
             exerciseEntry.activityType = intent.getIntExtra("type",-1)
+        }
+        if (isAuto) init()
         mLocationClient = GoogleApiClient.Builder(this)
             .addConnectionCallbacks(this)
             .addOnConnectionFailedListener(this)
@@ -204,6 +240,8 @@ class TrackingService:Service(), GoogleApiClient.ConnectionCallbacks, GoogleApiC
     private fun sendUpdate() {
         val intent = Intent(MapActivity.UpdateReceiver::class.java.name)
         intent.putExtra("update", true)
+        if (isAuto)
+            intent.putExtra("activity", exerciseEntry.activityType)
         sendBroadcast(intent)
     }
 
@@ -224,6 +262,129 @@ class TrackingService:Service(), GoogleApiClient.ConnectionCallbacks, GoogleApiC
         Log.d(TAG, "Fail to Connect");
     }
 
+    // continually infers the activity type using accelerometer data
+    override fun onSensorChanged(event : SensorEvent) {
+        if (isAuto){
+            if (event.sensor.type == Sensor.TYPE_LINEAR_ACCELERATION) {
+                val m = Math.sqrt(
+                    (event.values[0] * event.values[0] + event.values[1] * event.values[1] + (event.values[2]
+                            * event.values[2])).toDouble()
+                )
+                // Inserts the specified element into this queue if it is possible
+                // to do so immediately without violating capacity restrictions,
+                // returning true upon success and throwing an IllegalStateException
+                // if no space is currently available. When using a
+                // capacity-restricted queue, it is generally preferable to use
+                // offer.
+                try {
+                    mAccBuffer.add(m)
+                } catch (e: IllegalStateException) {
 
+                    // Exception happens when reach the capacity.
+                    // Doubling the buffer. ListBlockingQueue has no such issue,
+                    // But generally has worse performance
+                    val newBuf = ArrayBlockingQueue<Double>(mAccBuffer.size * 2)
+                    mAccBuffer.drainTo(newBuf)
+                    mAccBuffer = newBuf
+                    mAccBuffer.add(m)
+                }
+            }
+        }
+    }
+
+    override fun onAccuracyChanged(sensor : Sensor?, accuracy : Int) {
+
+    }
+
+    inner class OnSensorChangedTask : AsyncTask<Void, Void, Void>() {
+        override fun doInBackground(vararg arg0: Void?): Void? {
+            val inst: Instance = DenseInstance(mFeatLen)
+            inst.setDataset(mDataset)
+            var blockSize = 0
+            val fft = FFT(ACCELEROMETER_BLOCK_CAPACITY)
+            val accBlock = DoubleArray(ACCELEROMETER_BLOCK_CAPACITY)
+            val im = DoubleArray(ACCELEROMETER_BLOCK_CAPACITY)
+            var max = Double.MIN_VALUE
+            while (true) {
+                try {
+                    // need to check if the AsyncTask is cancelled or not in the while loop
+                    if (isCancelled() == true) {
+                        return null
+                    }
+
+                    // Dumping buffer
+                    accBlock[blockSize++] = mAccBuffer.take().toDouble()
+                    if (blockSize == ACCELEROMETER_BLOCK_CAPACITY) {
+                        blockSize = 0
+
+                        // time = System.currentTimeMillis();
+                        max = .0
+                        for (`val` in accBlock) {
+                            if (max < `val`) {
+                                max = `val`
+                            }
+                        }
+                        fft.fft(accBlock, im)
+                        for (i in accBlock.indices) {
+                            val mag = Math.sqrt(accBlock[i] * accBlock[i] + im[i]
+                                    * im[i])
+                            inst.setValue(i, mag)
+                            im[i] = .0 // Clear the field
+                        }
+                        // Append max after frequency component
+                        inst.setValue(ACCELEROMETER_BLOCK_CAPACITY, max)
+                        inst.setValue(mClassAttribute, mLabel)
+                        mDataset.add(inst)
+                        // User classifier to decide current activity type
+                        val resultValue = WekaClassifier.classify(inst.toDoubleArray().toTypedArray()).toInt()
+                        exerciseEntry.activityType = resultValue
+                    }
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
+            }
+        }
+    }
+
+    // model initialization
+    fun init(){
+        mLabel = AUTO_ACTIVITY_TYPES[3]
+        when(exerciseEntry.activityType){
+            0->{mLabel = AUTO_ACTIVITY_TYPES[2]}
+            1->{mLabel = AUTO_ACTIVITY_TYPES[1]}
+            2->{mLabel = AUTO_ACTIVITY_TYPES[0]}
+        }
+
+        // Create the container for attributes
+        val allAttr = ArrayList<Attribute>()
+
+        // Adding FFT coefficient attributes
+        val df = DecimalFormat("0000")
+        for (i in 0 until ACCELEROMETER_BLOCK_CAPACITY) {
+            allAttr.add(Attribute(FEAT_FFT_COEF_LABEL + df.format(i.toLong())))
+        }
+        // Adding the max feature
+        allAttr.add(Attribute(FEAT_MAX_LABEL))
+
+        // Declare a nominal attribute along with its candidate values
+        val labelItems = ArrayList<String>(3)
+        labelItems.add(CLASS_LABEL_STANDING)
+        labelItems.add(CLASS_LABEL_WALKING)
+        labelItems.add(CLASS_LABEL_RUNNING)
+        labelItems.add(CLASS_LABEL_OTHER)
+        mClassAttribute = Attribute(CLASS_LABEL_KEY, labelItems)
+        allAttr.add(mClassAttribute)
+
+        // Construct the dataset with the attributes specified as allAttr and
+        // capacity 10000
+        mDataset = Instances(FEAT_SET_NAME, allAttr, FEATURE_SET_CAPACITY)
+
+        // Set the last column/attribute (standing/walking/running) as the class
+        // index for classification
+        mDataset.setClassIndex(mDataset.numAttributes() - 1)
+
+        mAsyncTask = OnSensorChangedTask()
+        mAsyncTask.execute()
+    }
 }
 

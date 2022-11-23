@@ -49,6 +49,7 @@ class MapActivity  : AppCompatActivity(), OnMapReadyCallback{
 
     private lateinit var trackingIntent : Intent
     private var isBind:Boolean = false
+    private var isAuto:Boolean = false
     private lateinit var mapViewModel : MapViewModel
 
     private var inputType by Delegates.notNull<Int>()
@@ -96,6 +97,7 @@ class MapActivity  : AppCompatActivity(), OnMapReadyCallback{
 
         // check activity type, set run mode
         inputType = intent.getIntExtra("inputted", -1)
+        if (inputType == 2) isAuto = true
         isHistory = intent.getBooleanExtra("history",false)
         val activity = intent.getIntExtra("activity",-1)
         if (activity != -1){
@@ -130,7 +132,7 @@ class MapActivity  : AppCompatActivity(), OnMapReadyCallback{
         }else{
             trackingIntent = Intent(this.applicationContext,TrackingService::class.java)
             trackingIntent.putExtra("type",activity)
-
+            trackingIntent.putExtra("isAuto",isAuto)
             // Register updateReceiver
             updateReceiver = UpdateReceiver()
             registerReceiver(updateReceiver, IntentFilter(updateReceiver::class.java.name))
@@ -172,8 +174,10 @@ class MapActivity  : AppCompatActivity(), OnMapReadyCallback{
     // define back press behavior
     // should unbind and finish
     override fun onBackPressed() {
+        trackingIntent = Intent(this.applicationContext,TrackingService::class.java)
         stopService(trackingIntent)
         unbindService()
+        finish()
 //        unregisterReceiver(updateReceiver)
         super.onBackPressed()
     }
@@ -273,7 +277,14 @@ class MapActivity  : AppCompatActivity(), OnMapReadyCallback{
     fun updateInfo() {
         if (entry!= null) {
             var type = "Type: " + "Unknown"
-            if (entry.activityType != -1) type = ACTIVITY_TYPES[entry.activityType]
+            if (isAuto and !isHistory) {
+                val dummy = intent.getIntExtra("activity",-1)
+                type = if (dummy != -1) "Type: " + AUTO_ACTIVITY_TYPES[entry.activityType]
+                else "Type: " + "Unknown"
+            }else if (entry.activityType != -1){
+                type = if (isAuto) "Type: " + AUTO_ACTIVITY_TYPES[entry.activityType]
+                else "Type: " +ACTIVITY_TYPES[entry.activityType]
+            }
             val avg_speed = "Avg speed: " + Util.speedParser(isMetric, entry.avgSpeed)
             val cur_speed = "Cur speed: " + Util.speedParser(isMetric, entry.avgPace)
             val climb = "Climb: " + Util.distanceParser(isMetric,entry.climb)

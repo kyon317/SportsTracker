@@ -66,7 +66,7 @@ class StartFragment : Fragment() {
             "Automatic"->{
                 intent = Intent(view.context,MapActivity::class.java)
                 intent.putExtra("inputted",2)
-                intent.putExtra("activity",-1)
+                intent.putExtra("activity",type_spinner.selectedItemId.toInt())
             }
         }
         startActivity(intent)
